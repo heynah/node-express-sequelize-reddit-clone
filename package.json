@@ -1,0 +1,44 @@
+{
+  "name": "workspace",
+  "version": "0.0.1",
+  "description": "In a previous workshop, we set out to build a Reddit clone from the data perspective. Finishing this workshop gave us many functions that we'll still be able to use for this one like `createNewUser`, `createNewContent` and `voteOnContent`.",
+  "main": "index.js",
+  "dependencies": {
+    "bcrypt": "^0.8.5",
+    "body-parser": "^1.15.0",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.13.4",
+    "mysql": "^2.10.2",
+    "nodemon": "^1.8.1",
+    "secure-random": "^1.1.1",
+    "sequelize": "^3.19.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heynah/node-express-sequelize-reddit-clone.git"
+  },
+  "keywords": [
+    "reddit",
+    "clone",
+    "DecodeMTL",
+    "express",
+    "sequelize",
+    "body-parser",
+    "nodemon",
+    "mysql",
+    "javascript",
+    "react",
+    "database",
+    "query"
+  ],
+  "author": "Hanna Nicol <hanna.nicol@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heynah/node-express-sequelize-reddit-clone/issues"
+  },
+  "homepage": "https://github.com/heynah/node-express-sequelize-reddit-clone#readme"
+}
