@@ -1,3 +1,4 @@
+require('babel-register');
 var express = require('express');
 var app = express();
 app.set('json spaces', 2);
@@ -7,7 +8,13 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var secureRandom = require('secure-random');
 var cookieParser = require('cookie-parser');
-// var util = require("util")
+var ReactDOMServer = require('react-dom/server');
+/*function renderHtml(jsxStructure) {
+  var outputHtml = ReactDOMServer.renderToStaticMarkup(jsxStructure);
+
+  return '<!doctype html>' + outputHtml;
+}*/
+var render= require("./rendering.jsx");
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -34,6 +41,7 @@ function checkLoginToken(request, response, next) {
   }
 }
 app.use(checkLoginToken);
+app.use(express.static('css'));
 
 var db = new Sequelize('db','heynah', '', {dialect: 'mysql'});
 //var connction ->
@@ -81,42 +89,6 @@ Post.belongsToMany(User, {through: Vote});
 
 Post.hasMany(Vote); // New association, new sync (1 time)
 
-function buildHtml(contentsArray){
-  var html = 
-  `<div id="contents">
-
-    <h3><a href="https://project-reddit-clone-heynah.c9users.io/login">Login</a> /  <a href="https://project-reddit-clone-heynah.c9users.io/joinUs">Sign-Up</a></h3>
-    <h2><a href="https://project-reddit-clone-heynah.c9users.io/postSomething">Add a New Post! </a></h2>
-    <h1>List of contents</h1>
-      <ul class="contents-list">`
-  contentsArray.forEach(function(item){
-    console.log(item)
-    html += `
-      <li class="content-item">
-      <h2 class="content-item__title">` + item.dataValues.voteScore +`
-        <a href="`+ item.url +`">`+ item.title + `</a>
-      </h2>
-      <p>Created by ` + item.user.dataValues.username + `</p>
-      </li>
-      <span><form action="/votePost/" method="post">
-      <input type="hidden" name="upVote" value="true">
-      <input type="hidden" name="contentId" value="`+ item.id +`">
-      <button type="submit">upvote this</button>
-      </form>
-      <form action="/votePost/" method="post">
-       <input type="hidden" name="upVote" value="false">
-       <input type="hidden" name="contentId" value="`+ item.id +`">
-      <button type="submit">downvote this</button>
-      </form></span>
-      `
-  });
-      
-    html += `</ul></div>`;
-    
-return html;
-
-}
-
 function createSessionToken() {
     return secureRandom.randomArray(40).map(code => code.toString(16)).join('');
 }
@@ -134,8 +106,6 @@ app.get('/hello', function (req, res) {
 
 app.get('/', function(req, res) {
   
-  
-  
   Post.findAll({
     include: [{model: Vote, attributes: []}, {model: User}],
     group: 'content.id',
@@ -149,89 +119,28 @@ app.get('/', function(req, res) {
     subQuery: false // what's this?? come see me if you feel adventurous and want to know more :)
 }).then(function (posts) {
  
-    var html = buildHtml(posts);
-    res.send(`<span style="color: maroon">${req.query.error ? req.query.error : ''}</span>` + html);
+    res.send(render.renderHomepage({posts: posts, error: req.query.error}))
 })
-  
-  
-/*=========>>>>IN ===>>> */ });  
-   
-/*function retrieveTop5(callback) {
-  Post.findAll({ //group by content, ATTRIBUTES : fn(SUM => 'nameOfMyAggrigate'), order by 'name...'
-  order: [['createdAt','DESC']],
-  limit: 5,
-  //*subQuery: false
-  include: User
-  }).then(function(res) { //build html
-    callback(res);
 });
 
-}   
-//if logged in, can do everything=>  
-retrieveTop5(function(contents){
-    var ehtml = buildHtml(contents);
-    
-    res.send(`<span style="color: maroon">${req.query.error ? req.query.error : ''}</span>` + ehtml);
-  });
-//if not logged in, can view but all html buttons/links will redirect to login/signup    
-======>>>>>>> OUT!!!!});*/
-
 app.get('/joinUs', function(req, res) {
-    var html = `
-<form action="/joinUs" method="post">
-<span style="color:indigo">${req.query.error ? req.query.error : ''}</span>
-  <div>
-    <input type="text" name="username" placeholder="What would you like me to call you?">
-  </div>
-  <div>
-    <input type="password" name="password" placeholder="Top-secret password">
-  </div>
-  <button type="submit">Join Us!</button>
-</form>
-    `;
-    res.send(html);
+    
+    res.send(render.renderSignUp({error:req.query.error}));
 });
 
 app.get('/login', function(req, res) {
-    var html = `
-<form action="/login" method="post">
-<span style="color: maroon">${req.query.error ? req.query.error : ''}</span>
-  <div>
-    <input type="text" name="username" placeholder="You again! Remind me of your username...">
-  </div>
-  <div>
-    <input type="password" name="password" placeholder="Feed me your super secret password">
-  </div>
-  <button type="submit">Welcome Home, Bitches.</button>
-</form>
-    `;
-    
-    res.send(html);
-});;
+  
+  res.send(render.renderLogin({error:req.query.error}));
+  
+}); 
 
 app.get('/postSomething', function(req, res, next) {
   if (!req.loggedInUser) {
     res.redirect('/login?error=Login and make yourself known, Stanger.');
     return;
   }
-    var options = {
-      root: __dirname
-    };
-   
-    res.sendFile("forms/postForm.html", options); 
+    res.send(render.renderPost({error:req.query.error})); 
     });
-//sendFile error message ->    
-/*, function (err) {
-    if (err) {
-      console.log(err);
-      res.status(err.status).end();
-    }
-    else {
-      console.log('Sent:', fileName);
-    }*/
-/*app.get('/votePost', function(req, res) {
-    res.redirect('/')
-})*/
 
 //***POST
 app.post('/joinUs', function(req, res) {
@@ -245,7 +154,7 @@ app.post('/joinUs', function(req, res) {
         User.create({username: username, password: password});
         res.redirect('/');
      } else {
-        res.redirect('/joinUs?error=*(sad, you are not the first to the party. Try another username.');
+        res.redirect('/joinUs?error=*(  sad, you are not the first to the party. Try another username.');
         // res.send("<h2>*( sad, you are  not the first. Please register with another <a href='https://project-reddit-clone-heynah.c9users.io/joinUs'>username. </a></h2>")
      }
  })

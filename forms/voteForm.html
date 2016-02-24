@@ -85,3 +85,15 @@ Vote.findOne({
         // Try to figure out how to do this using the Referer HTTP header :)
     }
 );-->
+
+<!--function retrieveTop5(callback) {
+  Post.findAll({ //group by content, ATTRIBUTES : fn(SUM => 'nameOfMyAggrigate'), order by 'name...'
+  order: [['createdAt','DESC']],
+  limit: 5,
+  //*subQuery: false
+  include: User
+  }).then(function(res) { //build html
+    callback(res);
+});
+
+}-->
