@@ -11,22 +11,27 @@ function Layout(data) {
             <head>
                 <link rel="stylesheet" type="text/css" href="app.css" />
                 <title>{data.title}</title>
+                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+                <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'/>
             </head>
             <body>
-            <nav>
-              <ul>
-                <li style={{display: "inline-block"}}><a href="/">Home</a></li>
-                <li style={{display: "inline-block"}}><a href="/login">Login</a></li>
-                <li style={{display: "inline-block"}}><a href="/joinUs">Sign Up</a></li>
-                <li style={{display: "inline-block"}}><a href="/postSomething">Write a Post</a></li>
-              </ul>
-            </nav>
+            <header className="pageTop_pa">
+                <div className="navTop_ch"><span className="fa fa-bullhorn fa-4x"></span><i className="fa fa-wifi fa-2x"></i></div>
+                <nav className="navTop_chPa">
+                  <ul className="navLinks_chPa">
+                    <li className="navLink_ch animate"><a href="/">Home</a></li>
+                    <li className="navLink_ch animate"><a href="/login">Login</a></li>
+                    <li className="navLink_ch animate"><a href="/joinUs">Sign Up</a></li>
+                    <li className="navLink_ch animate"><a href="/postSomething">Write a Post</a></li>
+                  </ul>
+                </nav>
+            </header>
             {data.children}
-            <footer>
-                <li style={{display: "inline-block"}}><a href="/">Home</a></li>
-                <li style={{display: "inline-block"}}><a href="/login">Login</a></li>
-                <li style={{display: "inline-block"}}><a href="/joinUs">Sign Up</a></li>
-                <li style={{display: "inline-block"}}><a href="/postSomething">Write a Post</a></li>
+            <footer className="pageBot_pa">
+                <li className="navLink_ch"><a href="/">Home</a></li>
+                <li className="navLink_ch"><a href="/login">Login</a></li>
+                <li className="navLink_ch"><a href="/joinUs">Sign Up</a></li>
+                <li className="navLink_ch"><a href="/postSomething">Write a Post</a></li>
             </footer>
             </body>
         </html>
@@ -39,38 +44,42 @@ function renderHomepage(data){
   var structure = (
     <Layout title="Top Posts!">
         {data.error ? <div>{data.error}</div> : null}
-  <div id="contents">
+  <div className="homepageBody">
 
-    <h1>List of contents</h1>
-      <ul className="contents-list">
+      <h1 className="postsTitle_ch">List of contents</h1>
+      <ul className="contentsList_paCh">
       
-      {data.posts.map(function(item){
-      
-      return (
-      <li className="content-item">
-      <h2 className="content-item__title">{item.dataValues.voteScore/* ? item.dataValues.voteScore : "Cast the first vote!"*/}
-        <a href={item.url}>{item.title}</a>
-      </h2>
-      <p>Created by {item.user.dataValues.username}</p>
-      <div>
-      
-      <form action="/votePost" method="post">
-      <input type="hidden" name="upVote" value="true"/>
-      <input type="hidden" name="contentId" value={item.id}/>
-      <button type="submit">upvote this</button>
-      </form>
-      <form action="/votePost" method="post">
-       <input type="hidden" name="upVote" value="false"/>
-       <input type="hidden" name="contentId" value={item.id}/>
-      <button type="submit">downvote this</button>
-      </form>
-      </div>
-      </li>
-          )
+          {data.posts.map(function(item){
           
-      })}
+          return (
+          <li>
+              <div className="voter_paCh">
+                  <h2 className="voteScore_ch">{item.dataValues.voteScore/* ? item.dataValues.voteScore : "Cast the first vote!"*/}
+                  </h2>
+                  <div className="voteButtons_paCh">
+                  <form action="/votePost" method="post">
+                      <input type="hidden" name="upVote" value="true"/>
+                      <input type="hidden" name="contentId" value={item.id}/>
+                      <button type="submit"><i className="fa fa-caret-square-o-up fa-2x"></i></button>
+                  </form>
+                  <form action="/votePost" method="post">
+                       <input type="hidden" name="upVote" value="false"/>
+                       <input type="hidden" name="contentId" value={item.id}/>
+                       <button type="submit"><i className="fa fa-caret-square-o-down fa-2x"></i></button>
+                  </form>
+                  </div>
+              </div>
+              <article className="contentGuts_paCh">
+                  <h2>
+                    <a href={item.url}>{item.title}</a>
+                  </h2>
+                  <p>Blame: {item.user.dataValues.username}</p>
+              </article>
+          </li>
+              );
+          })}
      </ul>
-     </div>
+ </div>
      </Layout>
     );
       
@@ -82,12 +91,14 @@ function renderLogin(data) {
   var structure = (
     <Layout title="Bienvenue!">
         {data.error ? <div>{data.error}</div> : null}
-        <h1>Login</h1>
-        <form action="/login" method="post">
-         <div><input type='text' name='username' placeholder='You again!'/></div>
-         <div><input type='password' name='password' placeholder='Top secret'/></div>
-         <div><button type='submit'>Come In!</button></div>
-        </form>
+        <div className="loginBody">
+            <h1 className="loginTitle_ch">Login</h1>
+            <form className= "loginForm_ch" action="/login" method="post">
+                 <div><input type='text' name='username' placeholder='You again!' size="25"/></div>
+                 <div><input type='password' name='password' placeholder='Top secret' size="25"/></div>
+                 <div><button type='submit'>Come In!</button></div>
+            </form>
+        </div>    
       </Layout>
   );
 
@@ -100,12 +111,14 @@ function renderSignUp(data) {
   var structure = (
     <Layout title ="Bienvenue!">
           {data.error && <div>{data.error}</div>}      
-        <h1>Join Us!</h1>
-        <form action="/joinUs" method="post">
-         <div><input type='text' name='username' placeholder="What's your handel?"/></div>
-         <div><input type='password' name='password' placeholder='Top secret'/></div>
-         <div><button type='submit'>Come In!</button></div>
-        </form>
+        <div className="joinBody">
+            <h1 className="joinTitle_ch">Join Us!</h1>
+            <form className= "loginForm_ch" action="/joinUs" method="post">
+                 <div><input type='text' name='username' placeholder="What's your handle?" size="25"/></div>
+                 <div><input type='password' name='password' placeholder='Top secret' size="25"/></div>
+                 <div><button type='submit'>Come In!</button></div>
+            </form>
+        </div>
     </Layout>
   );
 
@@ -119,12 +132,14 @@ function renderPost(data) {
     var structure =(
     <Layout title="Say What?!">
         {data.error ? <div>{data.error}</div> : null}
-        <h1>Tell me what's on your mind</h1>
-        <form action="/postSomething" method="post">
-        <div><input type='text' name='url' placeholder="Enter the URL you'd like to share"/></div>
-        <div><input type='text' name='title' placeholder="What would you like to call it?"/></div>
-        <div><button type='submit'>Publish!</button></div>
-        </form>
+        <div className="postBody">
+            <h1 className="postTitle_ch">Tell me what's on your mind</h1>
+            <form className="postForm_ch" action="/postSomething" method="post">
+                <div><input type='text' name='url' placeholder="Enter the URL you'd like to share" size="30"/></div>
+                <div><input type='text' name='title' placeholder="What would you like to call it?" size="30"/></div>
+                <div><button type='submit'>Publish!</button></div>
+            </form> 
+        </div>
     </Layout>
         );
     return renderHtml(structure);

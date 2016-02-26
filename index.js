@@ -58,13 +58,15 @@ function(err, rows){
 
 var User = db.define('user', {
     username: {
-        type:Sequelize.STRING, unique: 'compositeIndex'},
+        type:Sequelize.STRING, unique: 'compositeIndex',
+        validate: {len: [3,40]}},
     hashed_password: Sequelize.STRING,
     password: {
         type: Sequelize.VIRTUAL,
         set: function(actualPassword) {
             this.setDataValue('hashed_password', bcrypt.hashSync(actualPassword, 10));
-        }
+        },
+        validate: {len: [6,40]}
     }
 });
 var Post = db.define('content', {
@@ -115,7 +117,7 @@ app.get('/', function(req, res) {
         ]
     },
     order: [Sequelize.literal('voteScore DESC')],
-    limit: 5, // this can be hard-coded to 25, and eventually in a later phase parameterized
+    limit: 25, // this can be hard-coded to 25, and eventually in a later phase parameterized
     subQuery: false // what's this?? come see me if you feel adventurous and want to know more :)
 }).then(function (posts) {
  
@@ -147,12 +149,18 @@ app.post('/joinUs', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
 //   res.send(req.body);
+ 
  User.findOne({
      where : {username: username}
  }).then(function(existingUser){
      if(!existingUser){
-        User.create({username: username, password: password});
-        res.redirect('/');
+       var userName = username;
+       if (userName.length<3){
+         res.redirect('/joinUs?error= Username must have at least 3 characters, por favor.');
+       } else {
+        User.create({username: username, password: password}).then(function(){
+        res.redirect('/');});
+       }
      } else {
         res.redirect('/joinUs?error=*(  sad, you are not the first to the party. Try another username.');
         // res.send("<h2>*( sad, you are  not the first. Please register with another <a href='https://project-reddit-clone-heynah.c9users.io/joinUs'>username. </a></h2>")
