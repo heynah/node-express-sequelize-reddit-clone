@@ -5,34 +5,67 @@ function renderHtml(jsxStructure) {
 
   return '<!doctype html>' + outputHtml;
 }
+
 function Layout(data) {
+    console.log(data.loggedInUser)
+    var pageNav = {};
+    var navBot = {};
+    if (data.loggedInUser) {
+        pageNav =
+            <ul className="navLinks_chPa">
+            <li className="navLink_ch animate"><a href="/">Home</a></li>
+            <li className="navLink_ch animate"><a href="/postSomething">Write a Post</a></li>
+            <li className="navLink_ch animate"><a href="/bye">Logout</a></li>
+            </ul>;
+        navBot = 
+            <ul className="pageBot_pa">
+            <li className="navLink_ch" style={{width: 115}}><a href="/">Home</a></li>
+            <li className="navLink_ch" style={{width: 115}}><a href="/postSomething">Write a Post</a></li>
+            <li className="navLink_ch" style={{width: 115}}><a href="/bye">Logout</a></li>
+            </ul>;
+            
+    } else {
+        pageNav = 
+            <ul className="navLinks_chPa">
+            <li className="navLink_ch animate"><a href="/">Home</a></li>
+            <li className="navLink_ch animate"><a href="/login">Login</a></li>
+            <li className="navLink_ch animate"><a href="/joinUs">Sign Up</a></li>
+            </ul>;
+        navBot = 
+            <ul className="pageBot_pa">
+            <li className="navLink_ch" style={{width: 85}}><a href="/">Home</a></li>
+            <li className="navLink_ch" style={{width: 85}}><a href="/login">Login</a></li>
+            <li className="navLink_ch" style={{width: 85}}><a href="/joinUs">Sign Up</a></li>
+            </ul>;
+
+                
+    }
     return (
         <html>
             <head>
-                <link rel="stylesheet" type="text/css" href="app.css" />
+                <link rel="stylesheet" type="text/css" href="/files/css/app.css" />
                 <title>{data.title}</title>
                 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
                 <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'/>
+                <link href="/files/css/linkPreview.css" rel="stylesheet" type="text/css"/>
+                <meta charSet = "utf-8"/>
             </head>
             <body>
             <header className="pageTop_pa">
                 <div className="navTop_ch"><span className="fa fa-bullhorn fa-4x"></span><i className="fa fa-wifi fa-2x"></i></div>
                 <nav className="navTop_chPa">
-                  <ul className="navLinks_chPa">
-                    <li className="navLink_ch animate"><a href="/">Home</a></li>
-                    <li className="navLink_ch animate"><a href="/login">Login</a></li>
-                    <li className="navLink_ch animate"><a href="/joinUs">Sign Up</a></li>
-                    <li className="navLink_ch animate"><a href="/postSomething">Write a Post</a></li>
-                  </ul>
+                {pageNav}
                 </nav>
             </header>
             {data.children}
             <footer className="pageBot_pa">
-                <li className="navLink_ch"><a href="/">Home</a></li>
-                <li className="navLink_ch"><a href="/login">Login</a></li>
-                <li className="navLink_ch"><a href="/joinUs">Sign Up</a></li>
-                <li className="navLink_ch"><a href="/postSomething">Write a Post</a></li>
+                {navBot}
             </footer>
+            <div className="gitFoot"><a href="https://github.com/heynah"><i className="fa fa-github-square fa-2x"></i></a></div>
+            <script src="https://code.jquery.com/jquery-1.12.1.js"></script> {/*force https*/}
+            <script src="/files/js/jquery-live-preview.js"></script>
+            <script src="/files/js/app.js"></script>
+            
             </body>
         </html>
         );
@@ -42,7 +75,7 @@ function Layout(data) {
     <h2><a href="https://project-reddit-clone-heynah.c9users.io/postSomething">Add a New Post! </a></h2>*/
 function renderHomepage(data){
   var structure = (
-    <Layout title="Top Posts!">
+    <Layout title="Top Posts!" loggedInUser={data.user}>
         {data.error ? <div>{data.error}</div> : null}
   <div className="homepageBody">
 
@@ -71,7 +104,7 @@ function renderHomepage(data){
               </div>
               <article className="contentGuts_paCh">
                   <h2>
-                    <a href={item.url}>{item.title}</a>
+                    <a target="_blank" className="livepreview" href={item.url}>{item.title}</a>
                   </h2>
                   <p>Blame: {item.user.dataValues.username}</p>
               </article>
@@ -88,9 +121,11 @@ function renderHomepage(data){
 
 function renderLogin(data) {
   // create the HTML structure with interpolations
+  var error = decodeURIComponent(data.error);
+  console.log(error);
   var structure = (
-    <Layout title="Bienvenue!">
-        {data.error ? <div>{data.error}</div> : null}
+    <Layout title="Bienvenue!" loggedInUser={data.user}>
+        {data.error ? <div>{error}</div> : null}
         <div className="loginBody">
             <h1 className="loginTitle_ch">Login</h1>
             <form className= "loginForm_ch" action="/login" method="post">
@@ -98,7 +133,8 @@ function renderLogin(data) {
                  <div><input type='password' name='password' placeholder='Top secret' size="25"/></div>
                  <div><button type='submit'>Come In!</button></div>
             </form>
-        </div>    
+        </div>
+        {/* ul>(li>img[src=http://placekitten.com/g/200/200])*5 emmet notation*/}
       </Layout>
   );
 
@@ -108,9 +144,10 @@ function renderLogin(data) {
 
 function renderSignUp(data) {
   // create the HTML structure with interpolations
+   var error = decodeURIComponent(data.error)
   var structure = (
-    <Layout title ="Bienvenue!">
-          {data.error && <div>{data.error}</div>}      
+    <Layout title ="Bienvenue!" loggedInUser={data.user}>
+          {error.data && <div>{error}</div>}      
         <div className="joinBody">
             <h1 className="joinTitle_ch">Join Us!</h1>
             <form className= "loginForm_ch" action="/joinUs" method="post">
@@ -130,7 +167,7 @@ function renderSignUp(data) {
 
 function renderPost(data) {
     var structure =(
-    <Layout title="Say What?!">
+    <Layout title="Say What?!" loggedInUser={data.user}>
         {data.error ? <div>{data.error}</div> : null}
         <div className="postBody">
             <h1 className="postTitle_ch">Tell me what's on your mind</h1>

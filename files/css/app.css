@@ -1,0 +1,204 @@
+/**/* {
+/*     border: 1px solid gray; */
+    box-sizing: border-box;
+   /*background-color: black;*/
+   list-style: none;
+   margin: 0;
+   padding: 0 5px;
+   font-family: 'PT Sans', sans-serif;
+   color: #270722;
+}
+/*https://coolors.co/app/270722-ecce8e-dbcf96-c2c6a7-9ac2c5*/
+body {
+    background-color: burlywood;
+    display: flex;
+    flex-direction: column;
+    /* align-items: stretch; */
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    /*background: none;*/
+    /*border: none;*/
+    background-color: #9ac2c5;
+}
+button i:hover {
+    opacity: 1.1;
+    transform: scale(1.2);
+}
+
+/*flex-box PARENTS*/ 
+/*================*/
+/*header */.pageTop_pa {
+    display: flex;
+    background-color: #c2c6a7;
+}
+/* '/' */.homepageBody, .loginBody, .postBody, .joinBody {
+    display: flex;
+    flex-flow: column;
+    background-color: #9AC2C5;
+    /* margin-bottom: 25vh; */
+    /* flex-grow: 99; */
+    flex: 1;
+    /* min-height: 100%; */
+    /*align-items: ;*/
+}
+/*footer*/.pageBot_pa {
+    /*align-items: ;*/
+    background-color: #270722;
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+}
+
+ul.pageBot_pa {
+    display: flex;
+    width: 60vh;
+    justify-content: space-around;
+    /*padding:;*/
+}
+/*git logo link container*/ .gitFoot {
+    display:flex;
+    justify-content: center;
+}
+
+
+/*'/joinUs'*/
+/*'/login'*/
+/*postSomething*/
+
+/*MAN-CHILDS*/
+/*==========*/
+
+
+/*header nav*/ .navTop_chPa {
+    /* height: 10vh; */
+    background-color: #dbcf96;
+    /* justify-content: space-around; */
+    display: flex;
+    flex-grow: 4;
+    margin: 5px 0;
+}
+
+/*header nav*/ .navLinks_chPa {
+    align-self: center;
+    display: flex;
+    justify-content: space-around;
+    flex-flow: row wrap;
+    font-size:1.1em;
+    padding: 0px;
+    margin: 0px;
+    
+}
+/*div  homepage posts */ .contentsList_paCh {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/*li each post in referense to ul*/ .contentsList_paCh li {
+    display:flex;
+    background-color: burlywood;
+    margin: 5px 0;
+}
+
+/*vote & tally*/ .voter_paCh {
+    align-items: center;
+    display: flex;
+    flex-basis: 115px;
+    flex-flow: row;
+    justify-content: flex-end;
+}
+
+
+/*vote buttons*/ .voteButtons_paCh, .loginForm_ch, .postForm_ch, .joinForm_ch {
+    align-items: center;
+    display:flex;
+    flex-flow: column;
+    margin: 3px 0px;
+}
+
+/*CHILDS*/
+/*======*/
+/*header div*/ .navTop_ch {
+    background-color: #c2c6a7;
+    display: flex;
+    /*flex-basis: 10%;*/
+    flex-grow: 2;
+    max-width: 200px;
+    /*min-height: 5vh;*/
+}
+
+/*header nav*/ .navLink_ch {
+    /*background-color:#dbcf96;*/
+    /*display: flex;*/
+    /*align-items: center;*/
+    margin: 0px;
+    padding: 2px 10px;
+    transition: all 0.5s ease;
+}
+
+/*header nav*/ .navLink_ch.animate:hover {
+    opacity: 0.5;
+    transform: scale(1.3);
+}
+
+/*body title*/ .postsTitle_ch, .loginTitle_ch, .postTitle_ch, .joinTitle_ch {
+    background-color: #dbcf96;
+    margin-top: 10px;
+    font-size: 2.2em;
+}
+
+i {
+    transition: all 0.5s ease;
+}
+
+
+@keyframes mymove {
+0%   {transform:rotate(90deg) scale(1); opacity: 0.1; color:#270722;}
+20% {transform:rotate(90deg) scale(1); opacity: 1.0; color:#270722;}
+100% {transform:rotate(90deg) scale(1.7); opacity: 0.1; color: #ecce8e;} 
+}
+
+.navTop_ch i {
+    /*transform: rotate(90deg);*/
+    animation: mymove 2s infinite ease-in-out;
+    padding-left: 0;
+    padding-top: 10px;
+    margin-left: -10px;
+}
+
+.fa fa-bullhorn fa-4x {
+    color: #270722;
+}
+
+.fa-wifi {
+    color: #270722;
+}
+
+@media screen and (max-width: 320px) {
+    .fa-wifi {
+        border: 1px solid red;
+        visibility: hidden;
+    }
+}
+
+footer .navLink_ch {
+    background-color: #dbcf96;
+    border-radius: 5px;
+}
+
+/*
+.contents-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.content-item {
+    display: flex;
+    flex-direction: column-reverse;
+}*/

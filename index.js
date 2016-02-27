@@ -19,7 +19,9 @@ var render= require("./rendering.jsx");
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 function checkLoginToken(request, response, next) {
+
   if (request.cookies.SESSION) {
+    // console.log(request.loggedInUser);
     Session.findOne({
       where: {
         token: request.cookies.SESSION
@@ -29,6 +31,7 @@ function checkLoginToken(request, response, next) {
       function(session) {
         // session will be null if no token was found
         if (session) {
+          // console.log(session.user.loggedInUser);
           request.loggedInUser = session.user;
         }
 
@@ -41,7 +44,13 @@ function checkLoginToken(request, response, next) {
   }
 }
 app.use(checkLoginToken);
-app.use(express.static('css'));
+function checkCurrentPage (req,res,next) {
+  // console.log(req);
+  next();
+}
+app.use(checkCurrentPage);
+
+app.use("/files", express.static('files'));  //the directory that *this file* will serve
 
 var db = new Sequelize('db','heynah', '', {dialect: 'mysql'});
 //var connction ->
@@ -66,7 +75,7 @@ var User = db.define('user', {
         set: function(actualPassword) {
             this.setDataValue('hashed_password', bcrypt.hashSync(actualPassword, 10));
         },
-        validate: {len: [6,40]}
+        validate: {len: [6,40]} //try&catch to throw an exeption with message if it doesn't validate
     }
 });
 var Post = db.define('content', {
@@ -107,7 +116,7 @@ app.get('/hello', function (req, res) {
 
 
 app.get('/', function(req, res) {
-  
+  console.log(req.loggedInUser);
   Post.findAll({
     include: [{model: Vote, attributes: []}, {model: User}],
     group: 'content.id',
@@ -118,31 +127,55 @@ app.get('/', function(req, res) {
     },
     order: [Sequelize.literal('voteScore DESC')],
     limit: 25, // this can be hard-coded to 25, and eventually in a later phase parameterized
-    subQuery: false // what's this?? come see me if you feel adventurous and want to know more :)
+    subQuery: false 
 }).then(function (posts) {
  
-    res.send(render.renderHomepage({posts: posts, error: req.query.error}))
+    res.send(render.renderHomepage({user: req.loggedInUser, posts: posts, error: req.query.error})) //decode url
 })
 });
 
 app.get('/joinUs', function(req, res) {
-    
+    if (req.loggedInUser) {
+    res.redirect('/?error=You remain logged in ;)');
+    return;
+  }
     res.send(render.renderSignUp({error:req.query.error}));
 });
 
 app.get('/login', function(req, res) {
-  
-  res.send(render.renderLogin({error:req.query.error}));
+  if (req.loggedInUser) {
+    res.redirect('/?error=You remain logged in ;)');
+    return;
+  }
+  res.send(render.renderLogin({user: req.loggedInUser, error:req.query.error}));
   
 }); 
 
 app.get('/postSomething', function(req, res, next) {
+  // console.log(req);
   if (!req.loggedInUser) {
     res.redirect('/login?error=Login and make yourself known, Stanger.');
     return;
   }
-    res.send(render.renderPost({error:req.query.error})); 
+    res.send(render.renderPost({user: req.loggedInUser, error:req.query.error})); 
     });
+    
+app.get('/bye', function(req, res) {
+  if(req.loggedInUser) {
+    Session.findOne( {
+      where: {token : req.cookies.SESSION}
+    }).then(function(userSession){
+      return userSession.destroy()
+      
+    }).then(function() {
+      res.clearCookie("SESSION")
+      res.redirect('/?error=Log back in to exercise your democratic powers and share your special self with the Tidder world');
+    })
+  } else {
+    res.redirect("/?error=You wern't even logged in, Dude! You must really want to get out to have found me");
+  }
+});
+
 
 //***POST
 app.post('/joinUs', function(req, res) {
@@ -157,6 +190,8 @@ app.post('/joinUs', function(req, res) {
        var userName = username;
        if (userName.length<3){
          res.redirect('/joinUs?error= Username must have at least 3 characters, por favor.');
+       } else if (password.length<6) {
+         res.redirect("/joinUs?error= Choose a longer, stronger password s'il te plait.");
        } else {
         User.create({username: username, password: password}).then(function(){
         res.redirect('/');});
@@ -167,7 +202,6 @@ app.post('/joinUs', function(req, res) {
      }
  })
 });
-
 
 app.post('/login', function (req, res) {
     var username = req.body.username;
@@ -205,12 +239,13 @@ app.post('/login', function (req, res) {
 })
 
 app.post('/postSomething', function(req, res) {
+  console.log(req.session.user)
   var url = req.body.url;
   var title = req.body.title;
-  if (!req.loggedInUser) {
+  if (!req.data.loggedInUser) {
       res.status(401).send("<a href='https://project-reddit-clone-heynah.c9users.io/login'>Make yourself known, Stanger. </a></h2>");
   } else {
-      req.loggedInUser.createContent({
+      req.session.user.dataValues.createContent({
           title: title,
           url: url
       }).then(
@@ -220,8 +255,6 @@ app.post('/postSomething', function(req, res) {
           })
     }
 });
-
-
 
 app.post('/votePost', function(req, res) {
   // res.send(req.body);
@@ -350,9 +383,8 @@ app.post('/api/users', jsonParser, function (req, res) {
 
 db.sync(/*{force:true}*/);
 
-/* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
+/* START SERVER */
 
-  // Boilerplate code to start up the web server
 var server = app.listen(process.env.PORT, process.env.IP, function () {
   var host = server.address().address;
   var port = server.address().port;
