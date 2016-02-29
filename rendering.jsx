@@ -51,6 +51,7 @@ function Layout(data) {
                 <meta charSet = "utf-8"/>
             </head>
             <body>
+            <div id="testing">hello</div>
             <header className="pageTop_pa">
                 <div className="navTop_ch"><span className="fa fa-bullhorn fa-4x"></span><i className="fa fa-wifi fa-2x"></i></div>
                 <nav className="navTop_chPa">
@@ -62,9 +63,9 @@ function Layout(data) {
                 {navBot}
             </footer>
             <div className="gitFoot"><a href="https://github.com/heynah"><i className="fa fa-github-square fa-2x"></i></a></div>
-            <script src="https://code.jquery.com/jquery-1.12.1.js"></script> {/*force https*/}
-            <script src="/files/js/jquery-live-preview.js"></script>
-            <script src="/files/js/app.js"></script>
+            {/* <script src="https://code.jquery.com/jquery-1.12.1.js"></script> {/*force https
+            <script src="/files/js/jquery-live-preview.js"></script>*/}
+            <script src="/files/js/app-compiled.js"></script>
             
             </body>
         </html>

@@ -18,7 +18,8 @@ var render= require("./rendering.jsx");
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
-function checkLoginToken(request, response, next) {
+
+app.use(function checkLoginToken(request, response, next) {
 
   if (request.cookies.SESSION) {
     // console.log(request.loggedInUser);
@@ -43,12 +44,12 @@ function checkLoginToken(request, response, next) {
    next(); 
   }
 }
-app.use(checkLoginToken);
-function checkCurrentPage (req,res,next) {
+);
+
+app.use(function checkCurrentPage (req,res,next) {
   // console.log(req);
   next();
-}
-app.use(checkCurrentPage);
+});
 
 app.use("/files", express.static('files'));  //the directory that *this file* will serve
 
@@ -239,13 +240,12 @@ app.post('/login', function (req, res) {
 })
 
 app.post('/postSomething', function(req, res) {
-  console.log(req.session.user)
   var url = req.body.url;
   var title = req.body.title;
-  if (!req.data.loggedInUser) {
+  if (!req.loggedInUser) {
       res.status(401).send("<a href='https://project-reddit-clone-heynah.c9users.io/login'>Make yourself known, Stanger. </a></h2>");
   } else {
-      req.session.user.dataValues.createContent({
+      req.loggedInUser.createContent({
           title: title,
           url: url
       }).then(
