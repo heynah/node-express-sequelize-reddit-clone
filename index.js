@@ -90,6 +90,10 @@ var Session = db.define('session', {
     token: Sequelize.STRING
 });
 
+var Comment = db.define('comment', {
+    comment: Sequelize.STRING
+});
+
 User.hasMany(Session); // This will let us do user.createSession
 Session.belongsTo(User); // This will let us do Session.findOne({include: User})
 
@@ -100,6 +104,10 @@ User.belongsToMany(Post, {through: Vote, as: "Upvotes"});
 Post.belongsToMany(User, {through: Vote});
 
 Post.hasMany(Vote); // New association, new sync (1 time)
+
+User.hasMany(Comment);
+Comment.belongsTo(User);
+Post.hasMany(Comment);
 
 function createSessionToken() {
     return secureRandom.randomArray(40).map(code => code.toString(16)).join('');
@@ -177,6 +185,41 @@ app.get('/bye', function(req, res) {
   }
 });
 
+app.get('/content/:id', function(req, res) {
+  
+    Post.findOne({
+      where: {
+        id: req.params.id
+      },
+      include: [{model: Vote, attributes: []}, {model: User}],
+      attributes: {
+        include: [
+          [Sequelize.fn('SUM', Sequelize.col('votes.upVote')), 'voteScore']
+          ]
+      },
+      subQuery: false
+    }).then(function (post) {
+        
+      res.send(render.renderCommentPage(post));
+      });
+  });
+  
+app.get('/comment/:contentId', function(req, res) { //returns JUST DATAjson that can be used in the browser, an array of comment objects {id: , comment: , says: ,}
+      var commentsMap = []
+      Comment.findAll({
+        where: {
+        contentId: req.params.contentId //my content id
+      },
+        include: [{model: User}],
+        order: [Sequelize.literal('createdAt DESC')],
+        limit: 40, // this can be hard-coded to 25, and eventually in a later phase parameterized
+        
+      }).then(function(comments) {
+        
+        res.json(comments) 
+      })
+})
+
 
 //***POST
 app.post('/joinUs', function(req, res) {
@@ -250,7 +293,7 @@ app.post('/postSomething', function(req, res) {
           url: url
       }).then(
           function(content){
-            console.log(content)
+            //console.log(content)
             res.redirect('/');
           })
     }
@@ -294,6 +337,40 @@ app.post('/votePost', function(req, res) {
           }
         }
 );
+
+app.post('/createComment', function(req, res) {
+    var commentText = req.body.commentText;
+    var contentId = req.body.contentId;
+    
+    if(!req.loggedInUser) {
+      res.status(401).send("<a href='https://project-reddit-clone-heynah.c9users.io/login'>We don't want your opinion (until you log in).</a></h2>");
+    } else {
+      req.loggedInUser.createComment( {
+        comment: commentText,
+        contentId: contentId
+      }).then(
+          function(comment){
+            //console.log(content)
+            res.json({
+              id: comment.id,
+              comment: comment.comment,
+              says: req.loggedInUser.username 
+            });
+          });
+    }
+    
+});
+    /*Comment.findOne({where: comment.contentId = content.id}).then (function(newComment) {
+      Comment.createComment({
+      comment: comment
+      
+      }
+    }
+    ).then(
+        function(){
+          res.redirect('comment/:id')
+        })*/
+
 
 // First check if a vote already exists
 /*Vote.findOne({
